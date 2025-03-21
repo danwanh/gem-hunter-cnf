@@ -2,11 +2,10 @@ import itertools
 from pysat.solvers import Glucose3
 
 class Grid:
-    def __init__(self, board):
-        self.rows = len(board)
-        self.cols = len(board[0])
-        self.board = board 
-        self.trap_map = [[False] * self.cols for _ in range(self.rows)]  
+    def __init__(self, file):
+        self.board = self.read_input_board(file)
+        self.rows = len(self.board)
+        self.cols = len(self.board[0])
         self.var_map = self.build_var_map()
 
     def build_var_map(self):
@@ -40,11 +39,11 @@ class Grid:
                             (r+1, c-1), (r+1, c), (r+1, c+1)
                         ]
                         if 0 <= nr < self.rows and 0 <= nc < self.cols
-                        and self.board[nr][nc] == '_'  # Chỉ lấy ô trống
+                        and self.board[nr][nc] == '_'
                     ]
-                    # print(neighbors)
+
                     if not neighbors:
-                        continue  # Bỏ qua nếu không có ô trống xung quanh
+                        continue  
 
                     vars_list = [self.get_var(nr, nc) for nr, nc in neighbors]
 
@@ -60,15 +59,15 @@ class Grid:
                             cnf_set.add((v,))
                         continue
 
-                    # Ràng buộc "tối đa num_traps" bẫy
-                    for combo in itertools.combinations(vars_list, len(vars_list) - num_traps + 1):
+                    # Ràng buộc "tối đa num_traps" bẫy (ít nhất 1 ô không phải bẫy)
+                    for combo in itertools.combinations(vars_list, num_traps + 1):
                         cnf_set.add(tuple(-v for v in combo))
 
-                    # Ràng buộc "tối thiểu num_traps" bẫy
-                    for combo in itertools.combinations(vars_list, num_traps + 1):
+                    # Ràng buộc "tối thiểu num_traps" bẫy (ít nhất 1 ô phải là bẫy)
+                    for combo in itertools.combinations(vars_list, len(vars_list) - num_traps + 1):
                         cnf_set.add(tuple(v for v in combo))
 
-        return [list(clause) for clause in cnf_set] 
+        return [list(clause) for clause in cnf_set]
 
     def read_input_board(self, file_path):
         with open(file_path, 'r') as f:
@@ -77,6 +76,7 @@ class Grid:
                 for c in range(len(self.board[0])):
                     if self.board[r][c] not in ('_', 'T', 'G'):
                         self.board[r][c] = int(self.board[r][c]) 
+        return self.board
 
 
     def write_output_board(self, file_path):

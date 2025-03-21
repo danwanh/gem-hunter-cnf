@@ -9,7 +9,6 @@ class Solver:
         self.variables = self.get_variables()  
 
     def get_variables(self):
-        """Lấy danh sách các ô '_' để xét làm biến"""
         variables = []
         for r in range(self.grid.rows):
             for c in range(self.grid.cols):
@@ -41,35 +40,40 @@ class Solver:
 
         return True 
     def brute_force(self):
+        start = time.time()
         sat_variables = self.variables
         
         for values in product([True, False], repeat=len(sat_variables)):  
             assignment = {var: val for var, val in zip(sat_variables, values)}  
             
             if self.check_cnf(assignment):  
-                return assignment  
+                end = time.time()
+                return assignment, end - start 
 
         return None 
     
-    def backtracking(self, index=0, assignment={}):
+    def backtracking(self, index=0, assignment={}, start_time=None):
+        if start_time is None:  # Chỉ đặt start_time ở lần gọi đầu tiên
+            start_time = time.time()
+
         if index == len(self.variables):  
-            return assignment if self.check_cnf(assignment) else None
+            return (assignment if self.check_cnf(assignment) else None), time.time() - start_time
 
         var = self.variables[index]
-      
+        
         for value in [True, False]:  
             assignment[var] = value
             if self.check_cnf(assignment):  
-                result = self.backtracking(index + 1, assignment)
+                result, elapsed_time = self.backtracking(index + 1, assignment, start_time)
                 if result:
-                    return result 
+                    return result, elapsed_time  
 
             assignment.pop(var)  
 
-        return None  
+        return None, time.time() - start_time
 
     def use_pysat(self):
-            """Dùng thư viện PySAT để tìm nghiệm"""
+            start = time.time()
             solver = Glucose3()
             for clause in self.cnf:
                 solver.add_clause(clause)
@@ -77,6 +81,16 @@ class Solver:
             if solver.solve():
                 model = solver.get_model()
                 assignment = {abs(var): (var > 0) for var in model if abs(var) in self.variables}
-                return assignment
+                end = time.time()
+                return assignment, end - start
             else:
-                return None
+                end = time.time()
+                return None, end - start
+            
+    def apply_solution(self, solution):
+        if solution != None:
+            for i in range(self.grid.rows):
+                for j in range(self.grid.cols):
+                    if self.grid.board[i][j] == '_':
+                        self.grid.board[i][j] = solution[self.grid.get_var(i, j)]
+        
