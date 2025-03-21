@@ -1,7 +1,9 @@
-True, True, 2, True, True, False, False
-True, 3, False, 2, False, 3, True
-2, False, False, False, False, True, 2
-True, 2, False, False, False, 2, False
-2, True, False, False, False, True, 2
-False, 3, False, 2, True, 3, True
-True, True, 2, True, False, False, False
+G, 1, 1, 1, G, G, 1, T, 1
+G, 2, T, 2, 1, 1, 2, 1, 1
+1, 4, T, 4, 2, T, 1, G, G
+2, T, T, T, 3, 2, 2, G, G
+2, T, 4, 2, 3, T, 2, G, G
+1, 1, 1, 1, 4, T, 5, 2, 1
+1, 1, G, 1, T, T, T, T, 3
+T, 2, 2, 3, 3, 3, 5, T, T
+1, 2, T, T, 1, G, 2, T, 3

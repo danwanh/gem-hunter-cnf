@@ -37,8 +37,8 @@ class Solver:
             if not satisfied and not unassigned:  
                 # print(f"Vi phạm CNF tại {clause} với assignment {assignment}")
                 return False  
-
         return True 
+    
     def brute_force(self):
         start = time.time()
         sat_variables = self.variables
@@ -87,10 +87,6 @@ class Solver:
                 end = time.time()
                 return None, end - start
             
-    def apply_solution(self, solution):
-        if solution != None:
-            for i in range(self.grid.rows):
-                for j in range(self.grid.cols):
-                    if self.grid.board[i][j] == '_':
-                        self.grid.board[i][j] = solution[self.grid.get_var(i, j)]
+
         
+  

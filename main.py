@@ -1,32 +1,5 @@
-# import sys
-# from solver import *
-
-# def main():
-#     # Khởi tạo Grid
-#     grid = Grid("testcases/input_2.txt")
-#     cnf = grid.generateCNF()
-#     # grid.write_output_board("testcases/output_1.txt")
-#     # print(cnf)
-#     print("Brute force: ")
-#     solver = Solver(grid)
-
-#     ans, time = solver.brute_force()
-#     print(ans, time)
-
-#     print("Backtracking: ")
-#     ans, time = solver.backtracking()
-#     print(ans, time)
-
-#     print("pysat: ")
-#     ans, time = solver.use_pysat()
-#     print(ans, time)
-
-#     solver.apply_solution(ans)
-#     grid.write_output_board("testcases/output_2.txt")
-
-
-# main()
 import sys
+import copy
 from solver import *
 from tabulate import tabulate
 
@@ -52,31 +25,52 @@ def main():
         return
     
     input_file, output_file = test_cases[test_case]
-    grid = Grid(input_file)
-    solver = Solver(grid)
+    
+    # Tạo grid gốc
+    original_grid = Grid(input_file)
+    
+    
     results = []
+    final_solution = None
     
-    if algorithm == "bruteforce" or algorithm == "all":
-        if(test_case == "11x11" or test_case == "20x20"):
-            results.append(["Brute Force", "N/A"])
-        else: 
+    if algorithm in {"bruteforce", "all"}:
+        if test_case in {"11x11", "20x20", "9x9"}:
+            results.append(["Brute Force", " ", " ", "N/A"])
+        else:
+            grid = copy.deepcopy(original_grid)
+            solver = Solver(grid)
             ans, time = solver.brute_force()
-            results.append(["Brute Force", time])
+            grid.apply_solution(ans)
+            traps, gems = grid.count_traps_and_gems()
+            results.append(["Brute Force", traps, gems, time])
+            final_solution = ans  # Lưu kết quả cuối cùng
     
-    if algorithm == "backtracking" or algorithm == "all":
+    if algorithm in {"backtracking", "all"}:
+        grid = copy.deepcopy(original_grid)
+        solver = Solver(grid)
         ans, time = solver.backtracking()
-        results.append(["Backtracking", time])
+        grid.apply_solution(ans)
+        traps, gems = grid.count_traps_and_gems()
+        results.append(["Backtracking", traps, gems, time])
+        final_solution = ans
+        grid.write_output_board("put.txt")
     
-    if algorithm == "pysat" or algorithm == "all":
+    if algorithm in {"pysat", "all"}:
+        grid = copy.deepcopy(original_grid)
+        solver = Solver(grid)
         ans, time = solver.use_pysat()
-        results.append(["PySAT", time])
+        grid.apply_solution(ans)
+        traps, gems = grid.count_traps_and_gems()
+        results.append(["PySAT", traps, gems, time])
+        final_solution = ans
     
     if results:
-        print(tabulate(results, headers=["Algorithm", "Time (s)"], tablefmt="grid"))
+        print(tabulate(results, headers=["Algorithm", "Traps", "Gems", "Time (s)"], tablefmt="grid"))
     
-    solver.apply_solution(ans)
-    grid.write_output_board(output_file)
-    print(f"Solution written to {output_file}")
+    if final_solution:
+        original_grid.apply_solution(final_solution)
+        original_grid.write_output_board(output_file)
+        print(f"Solution written to {output_file}")
 
 if __name__ == "__main__":
     main()

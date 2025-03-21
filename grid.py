@@ -83,3 +83,22 @@ class Grid:
         with open(file_path, 'w') as f:
             for row in self.board:
                 f.write(', '.join(map(str, row)) + '\n')
+
+    def count_traps_and_gems(self):
+        traps = 0
+        gems = 0
+        for r in range(len(self.board)):
+                for c in range(len(self.board[0])):
+                    if self.board[r][c] == 'G':
+                        gems += 1
+                    if self.board[r][c] == 'T':
+                        traps += 1
+        return traps, gems
+    
+    def apply_solution(self, solution):
+        self.build_var_map()
+        if solution != None:
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    if self.board[i][j] == '_':
+                        self.board[i][j] = 'T' if solution[self.get_var(i, j)] else 'G'
