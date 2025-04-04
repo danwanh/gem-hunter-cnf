@@ -6,9 +6,10 @@ class Grid:
         self.board = self.read_input_board(file)
         self.rows = len(self.board)
         self.cols = len(self.board[0])
-        self.var_map = self.build_var_map()
+        self.var_map = self.build_var_map() 
 
     def build_var_map(self):
+        ''' var_map[(0, 0)] -> 1, var_map[(0, 1)] -> 2, var_map[(0, 2)] -> 3, ... '''
         temp_map = {}
         count = 1
         for r in range(self.rows):
@@ -18,6 +19,7 @@ class Grid:
         self.var_map = temp_map
 
     def get_var(self, r, c):
+        ''' from row, column index get 1, 2, ...'''
         return self.var_map[(r, c)]
     
     def generateCNF(self):
@@ -47,23 +49,31 @@ class Grid:
 
                     vars_list = [self.get_var(nr, nc) for nr, nc in neighbors]
 
-                    # Nếu `num_traps == 0`, thì tất cả hàng xóm là `G`
+                    '''Tất cả hàng xóm không là bẫy (-neighbor1 ^ -neighbor2 ^ ...)'''
                     if num_traps == 0:
                         for v in vars_list:
                             cnf_set.add((-v,))  
                         continue
 
-                    # Nếu `num_traps == len(neighbors)`, tất cả hàng xóm là `T`
+                    '''Toàn bộ hàng xóm là bẫy (neighbor1 ^ neighbor2 ^ ...)'''
                     if num_traps == len(neighbors):
                         for v in vars_list:
                             cnf_set.add((v,))
                         continue
 
-                    # Ràng buộc "tối đa num_traps" bẫy (ít nhất 1 ô không phải bẫy)
+                    '''Ràng buộc "tối đa num_traps": <= num_traps:
+                        tức là có thể có 0, 1, ... num_traps hàng xóm là bẫy -> tối đa là num_traps
+                        -> chọn tổ hợp bất kì trong num_traps + 1 hàng xóm thì có ít nhất 1 vị trí không là bẫy
+                        VD. (-1 V -2) ^ (-1 V -3) ^ (-2 V -3)
+                        '''
                     for combo in itertools.combinations(vars_list, num_traps + 1):
-                        cnf_set.add(tuple(-v for v in combo))
+                        cnf_set.add(tuple(-v for v in combo)) 
 
-                    # Ràng buộc "tối thiểu num_traps" bẫy (ít nhất 1 ô phải là bẫy)
+                    '''Ràng buộc "tối thiểu num_traps": >= num_traps:
+                        tức là num_traps, num_traps + 1, ... hàng xóm là bẫy -> tối thiểu num_traps
+                        -> chọn tổ hợp bất kì trong (số hàng xóm - num_traps + 1) thì có ít nhất 1 vị trí là bẫy
+                        VD. (1 V 2) ^ (1 V 3) ^ (2 V 3)
+                        '''
                     for combo in itertools.combinations(vars_list, len(vars_list) - num_traps + 1):
                         cnf_set.add(tuple(v for v in combo))
 

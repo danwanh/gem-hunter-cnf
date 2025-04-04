@@ -34,16 +34,16 @@ def main():
     final_solution = None
     
     if algorithm in {"bruteforce", "all"}:
-        if test_case in {"11x11", "20x20", "9x9"}:
-            results.append(["Brute Force", " ", " ", "N/A"])
-        else:
+        # if test_case in {"11x11", "20x20", "9x9"}:
+        #     results.append(["Brute Force", " ", " ", "N/A"])
+        # else:
             grid = copy.deepcopy(original_grid)
             solver = Solver(grid)
             ans, time = solver.brute_force()
             grid.apply_solution(ans)
             traps, gems = grid.count_traps_and_gems()
             results.append(["Brute Force", traps, gems, time])
-            final_solution = ans  # Lưu kết quả cuối cùng
+            final_solution = ans  
     
     if algorithm in {"backtracking", "all"}:
         grid = copy.deepcopy(original_grid)
@@ -53,7 +53,6 @@ def main():
         traps, gems = grid.count_traps_and_gems()
         results.append(["Backtracking", traps, gems, time])
         final_solution = ans
-        grid.write_output_board("put.txt")
     
     if algorithm in {"pysat", "all"}:
         grid = copy.deepcopy(original_grid)
@@ -71,6 +70,7 @@ def main():
         original_grid.apply_solution(final_solution)
         original_grid.write_output_board(output_file)
         print(f"Solution written to {output_file}")
+    # print(solver.cnf)
 
 if __name__ == "__main__":
     main()
