@@ -34,11 +34,13 @@ def main():
     final_solution = None
     
     if algorithm in {"bruteforce", "all"}:
-        # if test_case in {"11x11", "20x20", "9x9"}:
-        #     results.append(["Brute Force", " ", " ", "N/A"])
-        # else:
-            grid = copy.deepcopy(original_grid)
-            solver = Solver(grid)
+        grid = copy.deepcopy(original_grid)
+        solver = Solver(grid)
+        if test_case in {"11x11", "20x20"}:
+            print("Number of variable assignments for brute force is", len(solver.variables)) 
+            print("In brute force, there are 2 ^", len(solver.variables), "possible assignments, which results in a very long execution time (> 3 hours).")
+            results.append(["Brute Force", " ", " ", "> 3 hours"])
+        else:
             ans, time = solver.brute_force()
             grid.apply_solution(ans)
             traps, gems = grid.count_traps_and_gems()
@@ -64,8 +66,8 @@ def main():
         final_solution = ans
     
     if results:
-        print(tabulate(results, headers=["Algorithm", "Traps", "Gems", "Time (s)"], tablefmt="grid"))
-    
+        print(tabulate(results, headers=["Algorithm", "Traps", "Gems", "Time (s)"], tablefmt="fancy_grid"))
+    print("Number of CNF clauses: ", len(solver.cnf))
     if final_solution:
         original_grid.apply_solution(final_solution)
         original_grid.write_output_board(output_file)

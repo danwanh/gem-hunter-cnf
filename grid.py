@@ -9,13 +9,14 @@ class Grid:
         self.var_map = self.build_var_map() 
 
     def build_var_map(self):
-        ''' var_map[(0, 0)] -> 1, var_map[(0, 1)] -> 2, var_map[(0, 2)] -> 3, ... '''
+        ''' var_map[(0, 0)] = '_' -> 1, var_map[(0, 1)] = 6 -> ignore, var_map[(0, 2)] = '_' -> 2, ... '''
         temp_map = {}
         count = 1
         for r in range(self.rows):
             for c in range(self.cols):
-                temp_map[(r, c)] = count
-                count += 1
+                if(self.board[r][c] == '_'):
+                    temp_map[(r, c)] = count
+                    count += 1
         self.var_map = temp_map
 
     def get_var(self, r, c):
@@ -76,7 +77,7 @@ class Grid:
                         '''
                     for combo in itertools.combinations(vars_list, len(vars_list) - num_traps + 1):
                         cnf_set.add(tuple(v for v in combo))
-
+        
         return [list(clause) for clause in cnf_set]
 
     def read_input_board(self, file_path):
@@ -112,3 +113,5 @@ class Grid:
                 for j in range(self.cols):
                     if self.board[i][j] == '_':
                         self.board[i][j] = 'T' if solution[self.get_var(i, j)] else 'G'
+        else:
+            print("No solution!")
